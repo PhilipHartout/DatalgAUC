@@ -1,9 +1,5 @@
-import heapq
-import time 
-import timeit
-
-#start_time = timeit.default_timer()
-
+import time, timeit, math, random
+"""
 test_size = 8
 test_list = [3, 7, 4, 11, 8, 5, 24, 10]
 
@@ -12,19 +8,60 @@ test_list2 = [21, 14, 7, 41, 33]
 
 test_size3 = 7
 test_list3 = [1, 100, 5, 200, 10, 300, 15]
+"""
+test_size4 = 100000
+test_list4 = [random.randint(0,1000000) for r in range(20000)]
+"""
 
-k = 0
-m = 0
+user_array = input('array: ')
+user_array = [int(e) for e in user_array.split()]
+user_size = int(input('size: '))
+"""
+class Heap:
+        #array, size
+        def __init__(self, array, size):
+                self.array = array
+                self.size = size
 
-def format(array):
-	X.split(",")
+        def heapify(self):
+                start = math.floor(self.size/2)
+                while start >= 0:
+                        self.sift_down(start)
+                        start -= 1
 
+        def sift_down(self, start):
+                root, local_min = start, start
+                while (2*root+1) < self.size:
+                        child = 2*root+1
+
+                        if self.array[local_min] > self.array[child]:
+                                local_min = child
+                        elif child + 1 < self.size and self.array[local_min] > self.array[child+1]:
+                                local_min = child+1
+                        elif local_min != root:
+                                self.array[root], self.array[local_min] = self.array[local_min], self.array[root]
+                                root = local_min
+                        else:
+                                return
+
+        def get_min(self):
+                return self.array[0]
+
+        def reduce(self, k):
+                self.array = [(a-k) for a in self.array if a-k >= 0]
+                self.size = len(self.array)
+                self.heapify() # DON'T REBUILD THE HEAP EVERY TIME THAT'S WASTEFUL AF
+
+        def get_size(self):
+                return self.size
+
+"""
 def minimum(X): #This implementation is faster, but I guess it's called cheating?
-	heapq.heapify(X)
-	return X[0]
+        heapq.heapify(X)
+        return X[0]
 
 def alt_minimum(X, size): #This needs some finetuning.
-	for h in range((size//2)-1,-1,-1):
+        for h in range((size//2)-1,-1,-1):
 		val_h = X[h]
 		j = 2*h+1
 		while(j<size):
@@ -36,34 +73,38 @@ def alt_minimum(X, size): #This needs some finetuning.
 			j=2*j+1
 			X[(j-1)//2]=val_h
 	return X[0]
+"""
+def game(X, size):
 
-def compute(m):
-	if m % 2 == 0:
-		return(2*m +1)
-	else:
-		return(3*m +1)
+        #user_input = input('Array:')
+        a = Heap(X, size)
+        while a.get_size() > 1:
+                m = a.get_min()
+                k = (2+(m %2))*m+1
 
-def game(size, X):
-	while size > 1:
-		m = alt_minimum(X,size)
-		k = compute(m)
+                a.reduce(k)
+        results = ['B', 'A']
+        return results[a.get_size()]
 
-		X = [item - k for item in X if item >= 0] #I have found no way of compressing these two loops into one loop
-		X = [item for item in X if item >= 0]
+def faster_game(X):
+        a = sorted(X)
+        while len(a) > 1:
+                m = a[0]
+                k = (2+(m %2))*m+1
+                a = [e-k for e in a if e-k >=0]
+        results = ['B', 'A']
+        return results[len(a)]
+#print(game(test_list, test_size))
+#print(game(test_list2, test_size2))
+#print(game(test_list3, test_size3))
+#print(game(user_array, user_size))
 
-		#print('The value of k is:', k)
-		#print('The current array is:', X)
-		
-		size = len(X)
+start_time0 = timeit.default_timer()
+print(game(test_list4, test_size4))
+elapsed0 = timeit.default_timer() - start_time0
 
-	if size == 1:
-		print('A')
-	else:
-		print('B')
+start_time1 = timeit.default_timer()
+print(faster_game(test_list4))
+elapsed1 = timeit.default_timer() - start_time1
 
-game(test_size, test_list)
-game(test_size2, test_list2)
-game(test_size3, test_list3)
-
-#elapsed = timeit.default_timer() - start_time
-#rint('Runtime:', elapsed)
+print('Runtime 0: ', elapsed0, '\nRuntme 1: ', elapsed1)
