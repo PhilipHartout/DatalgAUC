@@ -9,28 +9,27 @@ test_list2 = [21, 14, 7, 41, 33]
 
 test_size3 = 7
 test_list3 = [1, 100, 5, 200, 10, 300, 15
-
-test_size4 = 100000
-test_list4 = [random.randint(0,1000000) for r in range(20000)]
 """
-test_size = int(input('size: '))
-test_list = input('array: ')
+test_size = 10000
+test_list = [random.randint(0,20000) for r in range(10000)]
+"""
+test_size = int(input())
+test_list = input()
 test_list = [int(e) for e in test_list.split()]
+"""
 
 
-start_time0 = timeit.default_timer()
-print(len(test_list), test_size)
+
+array, size = test_list, test_size
 
 # THE IMPORTANT FUNCTIONS
-def heapify(array, size):
+def heapify():
         start = int(math.floor(size/2))
         while start >= 0:
-                sift_down(array, size, start)
+                sift_down(start)
                 start -= 1
 
-        return array
-
-def sift_down(array, size, start):
+def sift_down(start):
         root, local_min = start, start
         while (2*root+1) < size:
                 child = 2*root+1
@@ -43,19 +42,23 @@ def sift_down(array, size, start):
                         array[root], array[local_min] = array[local_min], array[root]
                         root = local_min
                 else:
-                        return array
+                        return
 def reduce(array, k):
-        array = [(a-k) for a in array if a-k >= 0]
-        size = len(array)
-        heapify(array, size) # DON'T REBUILD THE HEAP EVERY TIME THAT'S WASTEFUL AF
-        return array, size
+        array = [a-k for a in array if a-k >= 0]
+        return array
+
 
 # THE GAME
-array, size = heapify(test_list, test_size), test_size
+
+start_time0 = timeit.default_timer()
+heapify()
+
 while size > 1:
         m = array[0]
-        k = (2+(m %2))*m+1
-        array, size = reduce(array, k)
+        k = (2 + (m % 2)) * m + 1
+        array = reduce(array, k)
+        size = len(array)
+        heapify()
 
 results = ['B', 'A']
 print(results[size])
