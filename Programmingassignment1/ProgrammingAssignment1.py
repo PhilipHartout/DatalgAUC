@@ -54,6 +54,16 @@ However, upon doing this, the program again performed slower than our standard.
 4) Got rid of class, used global variables instead, hard-wire everything
 This made the whole thing a bit uglier, and we started getting namespace errors.
 Didn't get it to work successfully
+
+5) WE FIGURED IT OUT:
+We realized that the time intensive step was removing k from every element,
+and reheapifying. While before we were focusing on the latter of those two
+steps (reheapifying), now instead we looked at the k. we realized we could just
+keep increasing k instead of having to subtract this from everything. Then
+we could iterate over the sorted list and it would be done in no time
+This is the final implementation we stuck to, so all the extra heap code
+is excess
+
 """
 
 test_size0 = 8
@@ -79,7 +89,16 @@ class Heap:
                 self.array = array
                 self.size = size
                 self.heapify()
+                self.heap_sort()
 
+        # assumes self.array is already a heap
+        def heap_sort(self):
+                sorted_array = []
+                for i in range(len(self.array)):
+                        sorted_array.append(self.heap_pop())
+                self.array = sorted_array
+
+        # assumes unordered array
         def heapify(self):
                 start = math.floor(self.size/2)
                 while start >= 0:
@@ -88,8 +107,8 @@ class Heap:
 
         def sift_down(self, start):
                 root, local_min = start, start
-                child = 2*root+1
-                while child < self.size:
+                while (2*root+1) < self.size:
+                        child = 2*root+1
                         if self.array[local_min] > self.array[child]:
                                 local_min = child
                         elif child + 1 < self.size and self.array[local_min] > self.array[child+1]:
@@ -100,31 +119,74 @@ class Heap:
                         else:
                                 return
 
+        def heap_pop(self):
+                self.array[0], self.array[-1] = self.array[-1], self.array[0]
+                m = self.array.pop()
+                self.size -= 1
+                self.sift_down(0)
+                return m
+
         def get_min(self):
                 return self.array[0]
 
-        def reduce(self, k):
-                self.array = [(a-k) for a in self.array if a-k >= 0]
-                self.size  = len(self.array)
-                self.heapify()
+def heapsort(X, size):
+        s = size
 
-        def get_size(self):
-                return self.size
+        def sift_down(a, a_size, start):
+                root, local_min = start, start
+                while (2*root+1) < a_size:
+                        child = 2*root+1
+                        if a[local_min] > a[child]:
+                                local_min = child
+                        elif child + 1 < a_size and a[local_min] > a[child+1]:
+                                local_min = child+1
+                        elif local_min != root:
+                                a[root], a[local_min] = a[local_min], a[root]
+                                root = local_min
+                        else:
+                                return a
+
+        def heapify(a, a_size):
+                start = math.floor(a_size/2)
+                while start >= 0:
+                        a = sift_down(a, a_size, start)
+                        start -= 1
+                return a
+        h = heapify(X, s)
+
+        def heap_pop(a):
+                a[0], a[-1] = a[-1], a[0]
+                m = a.pop()
+                s -= 1
+                sift_down(h, s, 0)
+                return a, m
+
+        #sorting on heap
+        sorted_array = []
+        for i in range(len(h)):
+                h, e = heap_pop(h)
+                sorted_array.append(e)
+
+        self.array = sorted_array
 
 def game(X, size):
-        a = Heap(X, size)
-        while a.get_size() > 1:
-                m = a.get_min()
-                k = (2 + (m % 2)) * m + 1
-                # k will be odd when m is even, even m is odd
-                a.reduce(k)
-                results = ['B', 'A']
-        return results[a.get_size()]
+        a = heapsort(X, size)
+        #a = sorted(X)
+        k = 0
+        for i in range(len(a)-1):
+                e = a[i]
+                if e > k:
+                        m = e - k
+                        k += (2 + (m % 2)) * m + 1
+        if a[-1] > k:
+                return "A"
+        return "B"
+        #return results[a.get_size()]
 
 
-# print(game(test_list0, test_size0))
-# print(game(test_list1, test_size1))
-# print(game(test_list2, test_size2))
+print("A: ", game(test_list0, test_size0))
+print("B: ", game(test_list1, test_size1))
+print("A: ", game(test_list2, test_size2))
 
 start_time0 = timeit.default_timer()
 print(game(user_array, user_size))
