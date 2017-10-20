@@ -129,49 +129,51 @@ class Heap:
         def get_min(self):
                 return self.array[0]
 
+#------------------------------------------------------------
+# FUNCTIONwiSE IMPLEMENTATION BELOW
+#------------------------------------------------------------
+def sift_down(a, a_size, start):
+        root, local_min = start, start
+        while (2*root+1) < a_size:
+                child = 2*root+1
+                if a[local_min] > a[child]:
+                        local_min = child
+                elif child + 1 < a_size and a[local_min] > a[child+1]:
+                        local_min = child+1
+                elif local_min != root:
+                        a[root], a[local_min] = a[local_min], a[root]
+                        root = local_min
+                else:
+                        return a
+
+def heapify(a, a_size):
+        start = math.floor(a_size/2)
+        while start >= 0:
+                a = sift_down(a, a_size, start)
+                start -= 1
+        return a
+
 def heapsort(X, size):
-        s = size
-
-        def sift_down(a, a_size, start):
-                root, local_min = start, start
-                while (2*root+1) < a_size:
-                        child = 2*root+1
-                        if a[local_min] > a[child]:
-                                local_min = child
-                        elif child + 1 < a_size and a[local_min] > a[child+1]:
-                                local_min = child+1
-                        elif local_min != root:
-                                a[root], a[local_min] = a[local_min], a[root]
-                                root = local_min
-                        else:
-                                return a
-
-        def heapify(a, a_size):
-                start = math.floor(a_size/2)
-                while start >= 0:
-                        a = sift_down(a, a_size, start)
-                        start -= 1
-                return a
-        h = heapify(X, s)
-
-        def heap_pop(a):
+        s, h  = size, heapify(X, size)
+        def heap_pop(a, a_size):
                 a[0], a[-1] = a[-1], a[0]
                 m = a.pop()
-                s -= 1
-                sift_down(h, s, 0)
-                return a, m
+                a_size -= 1
+                a = sift_down(a, s, 0)
+                return a, a_size, m
 
         #sorting on heap
         sorted_array = []
         for i in range(len(h)):
-                h, e = heap_pop(h)
+                h, s, e = heap_pop(h, s)
                 sorted_array.append(e)
 
         self.array = sorted_array
 
 def game(X, size):
+        #a = Heap(X, size).array #takes around 4 seconds
         a = heapsort(X, size)
-        #a = sorted(X)
+        #a = sorted(X) # takes less than a second
         k = 0
         for i in range(len(a)-1):
                 e = a[i]
