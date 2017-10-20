@@ -1,6 +1,6 @@
-import time, timeit, math, random
-
 """
+Jesse Hoogland and Philip Hartout - Programming Assignment 1
+
 So we thought, oh this assignment looks pretty simple we just
 need to implement a heap and that'll do that.
 
@@ -65,40 +65,29 @@ This is the final implementation we stuck to, so all the extra heap code
 is excess
 
 """
+import time, timeit, math, random
 
-test_size0 = 8
-test_list0 = [3, 7, 4, 11, 8, 5, 24, 10]
-test_size1 = 5
-test_list1 = [21, 14, 7, 41, 33]
-
-test_size2 = 7
-test_list2 = [1, 100, 5, 200, 10, 300, 15]
-
-"""
-user_size = 100000
-user_array = [random.randint(0,1000000) for r in range(20000)]
-"""
 user_size = int(input())
 user_array = input()
 user_array = [int(e) for e in user_array.split()]
 
 
 class Heap:
-        #array, size
+        #Array, size
         def __init__(self, array, size):
                 self.array = array
                 self.size = size
                 self.heapify()
                 self.heap_sort()
 
-        # assumes self.array is already a heap
+        #Assumes self.array is already a heap
         def heap_sort(self):
                 sorted_array = []
                 for i in range(len(self.array)):
                         sorted_array.append(self.heap_pop())
                 self.array = sorted_array
 
-        # assumes unordered array
+        #Assumes unordered array
         def heapify(self):
                 start = math.floor(self.size/2)
                 while start >= 0:
@@ -130,7 +119,7 @@ class Heap:
                 return self.array[0]
 
 #------------------------------------------------------------
-# FUNCTIONwiSE IMPLEMENTATION BELOW
+# FUNCTIONWISE IMPLEMENTATION BELOW
 #------------------------------------------------------------
 def sift_down(a, a_size, start):
         root, local_min = start, start
@@ -162,7 +151,7 @@ def heapsort(X, size):
                 a = sift_down(a, s, 0)
                 return a, a_size, m
 
-        #sorting on heap
+        #Sorting on heap
         sorted_array = []
         for i in range(len(h)):
                 h, s, e = heap_pop(h, s)
@@ -171,9 +160,7 @@ def heapsort(X, size):
         self.array = sorted_array
 
 def game(X, size):
-        #a = Heap(X, size).array #takes around 4 seconds
-        a = heapsort(X, size)
-        #a = sorted(X) # takes less than a second
+        a = Heap(X, size).array 
         k = 0
         for i in range(len(a)-1):
                 e = a[i]
@@ -183,14 +170,5 @@ def game(X, size):
         if a[-1] > k:
                 return "A"
         return "B"
-        #return results[a.get_size()]
 
-
-print("A: ", game(test_list0, test_size0))
-print("B: ", game(test_list1, test_size1))
-print("A: ", game(test_list2, test_size2))
-
-start_time0 = timeit.default_timer()
 print(game(user_array, user_size))
-elapsed0 = timeit.default_timer() - start_time0
-print(elapsed0)
